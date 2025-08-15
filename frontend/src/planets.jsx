@@ -89,10 +89,10 @@ function MyThree() {
 }
 
 // Get data from the server
-// Returns promise or null
+// Returns promise
 async function get_data() {
-	const endpoint_get = process.env.ENDPOINT_PLANETS_GET;
-	const endpoint_post = process.env.ENDPOINT_PLANETS_POST;
+	const endpoint_get = import.meta.env.VITE_PLANETS_URL + "/get6Planets";
+	const endpoint_post = import.meta.env.VITE_PLANETS_URL + "/getNPlanets";
 
 	// TODO: cleanup
 	try {
