@@ -97,21 +97,21 @@ async function get_data() {
 	// TODO: cleanup
 	try {
 		// Post number of planets to request
-		const n_res = await fetch(endpoint_post, {
-			method: "POST",
-			body: JSON.stringify({
-				"n": 5
-			}),
-			headers: {
-				"Content-type": "application/json"
-			}
-		});
-		if (!n_res.ok) {
-			throw new Error(`Response status: ${n_res.status}`);
-		}
-		const res = await n_res.json();
-		console.log(res);
-		return res;
+		// const n_res = await fetch(endpoint_post, {
+		// 	method: "POST",
+		// 	body: JSON.stringify({
+		// 		"n": 5
+		// 	}),
+		// 	headers: {
+		// 		"Content-type": "application/json"
+		// 	}
+		// });
+		// if (!n_res.ok) {
+		// 	throw new Error(`Response status: ${n_res.status}`);
+		// }
+		// const res = await n_res.json();
+		// console.log(res);
+		// return res;
 
 		const response = await fetch(endpoint_get);
 		if (!response.ok) {
