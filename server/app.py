@@ -15,6 +15,11 @@ def serve_react_app():
     return send_from_directory(app.template_folder, "index.html")
 
 
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("index.html")
+
+
 random.seed(a=None, version=2)
 
 rHex = lambda: random.randint(0, 255)
@@ -65,4 +70,3 @@ def genPlanet():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
