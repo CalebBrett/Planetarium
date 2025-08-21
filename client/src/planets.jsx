@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function MyThree() {
 	const refContainer = useRef(null);
+	const [count, setCount] = useState(0)
+	const [useCount, setUseCount] = useState(false)
 
 	useEffect(() => {
 		// Prevent creating multiple canvases on re-renders (used in development)
@@ -18,10 +20,10 @@ function MyThree() {
 		const renderer = new THREE.WebGLRenderer();
 		const controls = new OrbitControls(camera, renderer.domElement);
 
-		// HTTP request to server
+		// Start HTTP request to server
 		// receive_data will push each planet into the planets list
 		const planets = [];
-		get_data().then(data => received_data(data, planets, scene));
+		get_data(useCount, count).then(data => received_data(data, planets, scene));
 
 		// Initialize canvas
 		renderer.setSize(window.innerWidth - 20, window.innerHeight - 20);
@@ -34,29 +36,24 @@ function MyThree() {
 		controls.update();
 
 		// Lighting
-		const ambient_light = new THREE.AmbientLight(0xa0a0a0);
-		scene.add(ambient_light);
-		const sun_light = new THREE.PointLight(0xffffff, 100, 1000);
-		sun_light.position.set(0, 0, 0);
-		scene.add(sun_light);
+		const ambientLight = new THREE.AmbientLight(0xa0a0a0);
+		scene.add(ambientLight);
+		const sunLight = new THREE.PointLight(0xffffff, 100, 1000);
+		sunLight.position.set(0, 0, 0);
+		scene.add(sunLight);
 
-		// SUN
+		// Cube sun
 		const geometry = new THREE.BoxGeometry(1, 1, 1);
 		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-		const cube = new THREE.Mesh(geometry, material);
-		scene.add(cube);
-
-		// add_planet(scene, name, colour, radius, init_angle, orbital_radius, angular_velocity)
-		// planets.push(init_planet(scene, "Mars", 0xff0000, 1, [2, 1, 0], [2, 2, 2], 1));
-		// planets.push(init_planet(scene, "Pluto", 0x00ffff, 0.5, [-2, -2, 4], [2, 5, 5], 4));
-		// planets.push(init_planet(scene, "Earth", 0x00ff00, 0.75, [-5, -3, 0], [1, 5, 0], 2));
+		const sun = new THREE.Mesh(geometry, material);
+		scene.add(sun);
 
 		// Animation loop
 		var time = 0;
 		renderer.setAnimationLoop(() => {
 			time += 0.01;
-			cube.rotation.x += 0.01;
-			cube.rotation.y += 0.01;
+			sun.rotation.x += 0.01;
+			sun.rotation.y += 0.01;
 
 			// Move each planet
 			for (var i = 0; i < planets.length; i++) {
@@ -84,80 +81,95 @@ function MyThree() {
 	}, []);
 
 	return (
-		<div ref={refContainer}></div>
+		<div>
+			<div className="card">
+				<button onClick={() => setCount((count) => count + 1)}>
+					Planet count is {count}
+				</button>
+				<button onClick={() => setUseCount((useCount) => !useCount)}>
+					Use the count to generate planets? {String(useCount)}
+				</button>
+			</div>
+			<div ref={refContainer}></div>
+		</div>
 	);
 }
 
 // Get data from the server
-// Returns promise
-async function get_data() {
-	const endpoint_get = import.meta.env.VITE_PLANETS_URL + "/get6Planets";
-	const endpoint_post = import.meta.env.VITE_PLANETS_URL + "/getNPlanets";
+// Return promise
+async function get_data(useCount, count) {
+	const planets_endpoint = import.meta.env.VITE_PLANETS_URL + "/planets";
 
-	// TODO: cleanup
-	try {
-		// Post number of planets to request
-		// const n_res = await fetch(endpoint_post, {
-		// 	method: "POST",
-		// 	body: JSON.stringify({
-		// 		"n": 5
-		// 	}),
-		// 	headers: {
-		// 		"Content-type": "application/json"
-		// 	}
-		// });
-		// if (!n_res.ok) {
-		// 	throw new Error(`Response status: ${n_res.status}`);
-		// }
-		// const res = await n_res.json();
-		// console.log(res);
-		// return res;
+	if (useCount) {
+		try {
+			// Post number of planets and receive list of n planets
+			const response = await fetch(planets_endpoint, {
+				method: "POST",
+				body: JSON.stringify({
+					"n": count
+				}),
+				headers: {
+					"Content-type": "application/json"
+				}
+			});
 
-		const response = await fetch(endpoint_get);
-		if (!response.ok) {
-			throw new Error(`Response status: ${response.status}`);
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
+			}
+
+			const result = await response.json();
+			console.log(result);
+
+			return result;
+
+		} catch (error) {
+			console.error(error.message);
 		}
+	} else {
+		try {
+			// Get list of preset number of planets
+			const response = await fetch(planets_endpoint);
 
-		const result = await response.json();
-		console.log(result);
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
+			}
 
-		return result;
-	} catch (error) {
-		console.error(error.message);
+			const result = await response.json();
+			console.log(result);
+
+			return result;
+
+		} catch (error) {
+			console.error(error.message);
+		}
 	}
 }
 
 // Data received from the server callback
 function received_data(data, list, scene) {
 	if (data) {
-		console.log(data);
-		console.log(list);
-
+		// Initialize received planets and add to planet list
 		for (var i = 0; i < data.length; i++) {
-			console.log(data[i].name);
-			console.log(data[i]);
-			console.log(Number(data[i].radius));
 			list.push(init_planet(scene, data[i].name, Number(data[i].colour), Number(data[i].radius), data[i].init_angle, data[i].orbital_radius, data[i].angular_velocity));
 		}
-
 	}
 }
 
-// Adds a planet to the scene
-// Returns object with planet data
+// Add a planet to the scene
+// Return object with planet data
 function init_planet(scene, name, colour, radius, init_angle, orbital_radius, angular_velocity) {
 	const geometry = new THREE.SphereGeometry(radius, 20, 20);
-	console.log(radius);
 	const material = new THREE.MeshPhongMaterial({ color: colour });
 	const sphere = new THREE.Mesh(geometry, material);
-
-	// TODO: elliptical orbit lines
-	const line_material = new THREE.LineBasicMaterial({ color: 0xffffff });
-	const line_geometry = new THREE.RingGeometry(orbital_radius[0], orbital_radius[0], 50);
-	const line = new THREE.Line(line_geometry, line_material);
-
-	scene.add(line);
 	scene.add(sphere);
+
+	// Add circular orbital lines if the orbit is not elliptical
+	if (orbital_radius[0] == orbital_radius[1]) {
+		const line_material = new THREE.LineBasicMaterial({ color: 0xffffff });
+		const line_geometry = new THREE.RingGeometry(orbital_radius[0], orbital_radius[0], 50);
+		const line = new THREE.Line(line_geometry, line_material);
+		scene.add(line);
+	}
 
 	const planet = { name: name, mesh: sphere, init_angle: init_angle, orbital_radius: orbital_radius, angular_velocity: angular_velocity }
 	return planet;

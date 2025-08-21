@@ -1,4 +1,3 @@
-import json
 import random
 
 from flask import Flask, jsonify, request
@@ -7,35 +6,36 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-
+# Functions to generate randomized planet properties
 random.seed(a=None, version=2)
-
 rHex = lambda: random.randint(0, 255)
 rAng = lambda: random.randint(-6, 7)
 rOrb = lambda: random.randint(-20, 21)
 rVel = lambda: 1 + (3 - 1) * random.random()
 
 
-@app.route("/api/getNPlanets", methods=["POST"])
+# Receive n number of planets and send list of n planets
+@app.route("/api/planets", methods=["POST"])
 def getNPlanets():
-    data = request.get_json()  # Parse JSON body
+    data = request.get_json()
     n = int(data.get("n"))
-    planets = []
 
+    planets = []
     for i in range(0, n):
         planets.append(genPlanet())
     return jsonify(planets)
 
 
-@app.route("/api/get6Planets", methods=["GET"])
+# Get list of preset number of planets
+@app.route("/api/planets", methods=["GET"])
 def getListOfPlanets():
     planets = []
     for i in range(0, random.randint(4, 7)):
         planets.append(genPlanet())
-
     return jsonify(planets)
 
 
+# Generate randomized planet
 def genPlanet():
     hex = "0x%02X%02X%02X" % (rHex(), rHex(), rHex())
     radius = random.uniform(0.5, 1.0)
