@@ -9,8 +9,11 @@ function MyThree() {
 
 	useEffect(() => {
 		// Bind inputs to states
-		document.getElementById('slider').oninput = function() {
+		document.getElementById('slider').onchange = function() {
 			setCount((count) => this.value);
+		}
+		document.getElementById('slider').oninput = function() {
+			document.getElementById('sliderValue').innerHTML = this.value;
 		}
 		document.getElementById('toggle').oninput = function() {
 			setUseCount((useCount) => this.checked);
@@ -111,7 +114,7 @@ function MyThree() {
 						<span className="switchInner"></span>
 					</label>
 					<input type="range" min="1" max="1000" defaultValue="10" id="slider" />
-					<p>{count}</p>
+					<p id="sliderValue">{count}</p>
 				</div>
 			</div>
 			<div ref={refContainer}></div>
