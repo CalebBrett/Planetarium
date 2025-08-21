@@ -22,21 +22,21 @@ def getNPlanets():
 
     planets = []
     for i in range(0, n):
-        planets.append(genPlanet())
+        planets.append(generatePlanet())
     return jsonify(planets)
 
 
 # Get list of preset number of planets
 @app.route("/api/planets", methods=["GET"])
-def getListOfPlanets():
+def getPlanets():
     planets = []
     for i in range(0, random.randint(4, 7)):
-        planets.append(genPlanet())
+        planets.append(generatePlanet())
     return jsonify(planets)
 
 
 # Generate randomized planet
-def genPlanet():
+def generatePlanet():
     hex = "0x%02X%02X%02X" % (rHex(), rHex(), rHex())
     radius = random.uniform(0.5, 1.0)
     initAngle = [0, 0, 0]

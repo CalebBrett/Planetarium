@@ -9,10 +9,10 @@ function MyThree() {
 
 	useEffect(() => {
 		// Prevent creating multiple canvases on re-renders (used in development)
-		if (refContainer.current && refContainer.current.firstChild) {
-			console.log("Canvas already exists, skipping creation.");
-			return;
-		}
+		// if (refContainer.current && refContainer.current.firstChild) {
+		// 	console.log("Canvas already exists, skipping creation.");
+		// 	return;
+		// }
 
 		// Initialize Three.js components
 		const scene = new THREE.Scene();
@@ -78,7 +78,7 @@ function MyThree() {
 				renderer.setAnimationLoop(null);
 			}
 		};
-	}, []);
+	}, [useCount, count]);
 
 	return (
 		<div>
