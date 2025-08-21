@@ -4,10 +4,18 @@ import { useEffect, useRef, useState } from "react";
 
 function MyThree() {
 	const refContainer = useRef(null);
-	const [count, setCount] = useState(0)
+	const [count, setCount] = useState(10)
 	const [useCount, setUseCount] = useState(false)
 
 	useEffect(() => {
+		// Bind inputs to states
+		document.getElementById('slider').oninput = function() {
+			setCount((count) => this.value);
+		}
+		document.getElementById('toggle').oninput = function() {
+			setUseCount((useCount) => this.checked);
+		}
+
 		// Initialize Three.js components
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -94,15 +102,20 @@ function MyThree() {
 	return (
 		<div>
 			<div className="card">
-				<button onClick={() => setCount((count) => count + 1)}>
-					Planet count is {count}
-				</button>
-				<button onClick={() => setUseCount((useCount) => !useCount)}>
-					Use the count to generate planets? {String(useCount)}
-				</button>
+				<p>
+					{useCount ? count + " planets have been created." : "Press toggle button and use slider to choose how many planets to generate."}
+				</p>
+				<div id="input">
+					<label className="switch">
+						<input type="checkbox" id="toggle" />
+						<span className="switchInner"></span>
+					</label>
+					<input type="range" min="1" max="1000" defaultValue="10" id="slider" />
+					<p>{count}</p>
+				</div>
 			</div>
 			<div ref={refContainer}></div>
-		</div>
+		</div >
 	);
 }
 
@@ -175,12 +188,12 @@ function init_planet(scene, name, colour, radius, init_angle, orbital_radius, an
 	scene.add(sphere);
 
 	// Add circular orbital lines if the orbit is not elliptical
-	if (orbital_radius[0] == orbital_radius[1]) {
-		const line_material = new THREE.LineBasicMaterial({ color: 0xffffff });
-		const line_geometry = new THREE.RingGeometry(orbital_radius[0], orbital_radius[0], 50);
-		const line = new THREE.Line(line_geometry, line_material);
-		scene.add(line);
-	}
+	// if (orbital_radius[0] == orbital_radius[1]) {
+	// 	const line_material = new THREE.LineBasicMaterial({ color: 0xffffff });
+	// 	const line_geometry = new THREE.RingGeometry(orbital_radius[0], orbital_radius[0], 50);
+	// 	const line = new THREE.Line(line_geometry, line_material);
+	// 	scene.add(line);
+	// }
 
 	const planet = { name: name, mesh: sphere, init_angle: init_angle, orbital_radius: orbital_radius, angular_velocity: angular_velocity }
 	return planet;
