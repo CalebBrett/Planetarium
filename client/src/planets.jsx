@@ -8,12 +8,6 @@ function MyThree() {
 	const [useCount, setUseCount] = useState(false)
 
 	useEffect(() => {
-		// Prevent creating multiple canvases on re-renders (used in development)
-		// if (refContainer.current && refContainer.current.firstChild) {
-		// 	console.log("Canvas already exists, skipping creation.");
-		// 	return;
-		// }
-
 		// Initialize Three.js components
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -71,9 +65,26 @@ function MyThree() {
 			renderer.render(scene, camera);
 		});
 
-		// Cleanup when component unmounts
+		// Cleanup
 		return () => {
 			if (refContainer.current && renderer.domElement) {
+				scene.remove();
+				camera.remove();
+				renderer.dispose();
+				controls.dispose();
+				ambientLight.dispose();
+				sunLight.dispose();
+				geometry.dispose();
+				material.dispose();
+				sun.geometry.dispose();
+				sun.material.dispose();
+				sun.remove();
+				for (let i = 0; i < planets.length; i++) {
+					planets[i].mesh.geometry.dispose();
+					planets[i].mesh.material.dispose();
+					planets[i].mesh.remove();
+				}
+
 				refContainer.current.removeChild(renderer.domElement);
 				renderer.setAnimationLoop(null);
 			}

@@ -5,8 +5,8 @@ import App from './App.jsx'
 import Three from './planets.jsx'
 
 createRoot(document.getElementById('root')).render(
-	<StrictMode>
+	<div>
 		<App />
 		<Three />
-	</StrictMode>,
+	</div>,
 )
