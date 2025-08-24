@@ -41,7 +41,7 @@ function MyThree() {
 		controls.update();
 
 		// Lighting
-		const ambientLight = new THREE.AmbientLight(0xa0a0a0);
+		const ambientLight = new THREE.AmbientLight(0xffffff);
 		scene.add(ambientLight);
 		const sunLight = new THREE.PointLight(0xffffff, 100, 1000);
 		sunLight.position.set(0, 0, 0);
